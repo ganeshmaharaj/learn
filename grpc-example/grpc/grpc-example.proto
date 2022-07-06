@@ -1,0 +1,13 @@
+syntax  = "proto3";
+option go_package  = "ganeshma.grpc.example/grpc";
+
+import "google/protobuf/empty.proto";
+package grpcproto;
+
+service Handler {
+  rpc GetName(google.protobuf.Empty) returns (nameResponse) {}
+}
+
+message nameResponse  {
+  string  name = 1;
+}
