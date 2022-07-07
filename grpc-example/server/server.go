@@ -39,3 +39,26 @@ func RunServer(port int) {
 		log.Fatalf("Failed to start server at port %v", port)
 	}
 }
+
+func RunServerUnix(socketfile string) {
+	lis, err := net.Listen("unix", socketfile)
+	if err != nil {
+		log.Printf("Unable to start listening via socket file :: %s\n", socketfile)
+	}
+
+	defer func() {
+		if _, err := os.Stat(socketfile); err == nil {
+			if err := os.RemoveAll(socketfile); err != nil {
+				log.Printf("Socketfile clean up failed with %#v\n", err)
+			}
+		}
+	}()
+
+	s := grpc.NewServer()
+	pb.RegisterHandlerServer(s, &server{})
+	log.Printf("Start server to listen via unix socket %s\n", socketfile)
+
+	if err = s.Serve(lis); err != nil {
+		log.Fatalf("Server start failed with error %s\n", err.Error())
+	}
+}
